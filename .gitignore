@@ -40,4 +40,14 @@ luac.out
 *.x86_64
 *.hex
 
-
+target
+.settings
+.project
+.classpath
+*.log
+*.log.*
+*.mdmp
+.DS_Store
+~*
+*.tmp
+*.ldb
