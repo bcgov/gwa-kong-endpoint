@@ -16,11 +16,5 @@ return {
     upstream_url = {
       type = "text"
     },
-    upstream_username = {
-      type = "text"
-    },
-    upstream_password = {
-      type = "text"
-    },
   }
 }
