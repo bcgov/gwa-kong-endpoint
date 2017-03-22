@@ -9,12 +9,33 @@ local ngx_get_headers = ngx.req.get_headers
   
 local _M = {}
 
-local function setConsumer(consumer)
-  ngx_set_header(constants.HEADERS.CONSUMER_ID, consumer.id)
-  ngx_set_header(constants.HEADERS.CONSUMER_CUSTOM_ID, consumer.custom_id)
-  ngx_set_header(constants.HEADERS.CONSUMER_USERNAME, consumer.username)
-  ngx.ctx.authenticated_consumer = consumer  
-  ngx.ctx.authenticated_credential = { consumer_id = consumer.id }
+function _M.execute(conf)
+  local ok, err = doSiteminderAuthentication(conf)
+  if not ok then
+    return responses.send(err.status, err.message)
+  end
+end
+
+local function doSiteminderAuthentication(conf)
+  local headers = ngx_get_headers()
+  local userguid = headers["smgov_userguid"]
+  if userguid then
+    local authdirname = headers["sm_authdirname"]
+    local universalid = headers["sm_universalid"]
+    if not (authdirname and universalid) then
+      return false, {status = 403}
+    else
+      local customId = authdirname..'_'..userguid
+      local username = authdirname..'_'..universalid
+      local consumer = loadConsumer(customId, username)
+      if consumer then
+        setConsumer(consumer, authdirname, universalid)
+      else
+        return false, {status = 403}
+      end
+    end
+  end
+  return true
 end
 
 local function findConsumer(parameters)
@@ -62,37 +83,14 @@ local function loadConsumer(customId, username)
   end
 end
 
-local function doSiteminderAuthentication(conf)
-  local headers = ngx_get_headers()
-  local userguid = headers["smgov_userguid"]
-  if userguid then
-    local authdirname = headers["sm_authdirname"]
-    local universalid = headers["sm_universalid"]
-    if not (authdirname and universalid) then
-      return false, {status = 403}
-    else
-      local customId = authdirname..':'..userguid
-      local username = authdirname..':'..universalid
-      local consumer = loadConsumer(customId, username)
-      if consumer then
-        setConsumer(consumer)
-      else
-        return false, {status = 403}
-      end
-    end
-  end
-
-
-
-
-  return true
-end
-
-function _M.execute(conf)
-  local ok, err = doSiteminderAuthentication(conf)
-  if not ok then
-    return responses.send(err.status, err.message)
-  end
+local function setConsumer(consumer, userType, userName)
+  ngx_set_header(constants.HEADERS.CONSUMER_ID, consumer.id)
+  ngx_set_header(constants.HEADERS.CONSUMER_CUSTOM_ID, consumer.custom_id)
+  ngx_set_header(constants.HEADERS.CONSUMER_USERNAME, consumer.username)
+  ngx_set_header('X-User-Type', userType)
+  ngx_set_header('X-User-Name', userName)
+  ngx.ctx.authenticated_consumer = consumer  
+  ngx.ctx.authenticated_credential = { consumer_id = consumer.id }
 end
 
 return _M
