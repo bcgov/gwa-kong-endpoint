@@ -9,35 +9,6 @@ local ngx_get_headers = ngx.req.get_headers
   
 local _M = {}
 
-function _M.execute(conf)
-  local ok, err = doSiteminderAuthentication(conf)
-  if not ok then
-    return responses.send(err.status, err.message)
-  end
-end
-
-local function doSiteminderAuthentication(conf)
-  local headers = ngx_get_headers()
-  local userguid = headers["smgov_userguid"]
-  if userguid then
-    local authdirname = headers["sm_authdirname"]
-    local universalid = headers["sm_universalid"]
-    if not (authdirname and universalid) then
-      return false, {status = 403}
-    else
-      local customId = authdirname..'_'..userguid
-      local username = authdirname..'_'..universalid
-      local consumer = loadConsumer(customId, username)
-      if consumer then
-        setConsumer(consumer, authdirname, universalid)
-      else
-        return false, {status = 403}
-      end
-    end
-  end
-  return true
-end
-
 local function findConsumer(parameters)
   local dao = singletons.dao.consumers
   local consumers, err = dao:find_all(parameters)
@@ -91,6 +62,38 @@ local function setConsumer(consumer, userType, userName)
   ngx_set_header('X-User-Name', userName)
   ngx.ctx.authenticated_consumer = consumer  
   ngx.ctx.authenticated_credential = { consumer_id = consumer.id }
+end
+
+local function doSiteminderAuthentication(conf)
+  local headers = ngx_get_headers()
+  local userguid = headers["smgov_userguid"]
+  if userguid then
+    local authdirname = headers["sm_authdirname"]
+    local universalid = headers["sm_universalid"]
+    if not (authdirname and universalid) then
+      return false, {status = 403}
+    else
+      authdirname = authdirname:lower();
+      userguid = userguid:lower();
+      universalid = universalid:lower();
+      local customId = authdirname..'_'..userguid
+      local username = authdirname..'_'..universalid
+      local consumer = loadConsumer(customId, username)
+      if consumer then
+        setConsumer(consumer, authdirname, universalid)
+      else
+        return false, {status = 403}
+      end
+    end
+  end
+  return true
+end
+
+function _M.execute(conf)
+  local ok, err = doSiteminderAuthentication(conf)
+  if not ok then
+    return responses.send(err.status, err.message)
+  end
 end
 
 return _M
