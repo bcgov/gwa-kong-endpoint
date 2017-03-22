@@ -10,7 +10,7 @@ return {
       if err then
         return helpers.yield_error(err)
       else
-      local distinct_groups = {}
+        local distinct_groups = {}
         
         local group_map = {}
         for _, row in ipairs(rows) do
