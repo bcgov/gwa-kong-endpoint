@@ -10,14 +10,28 @@ return {
       if err then
         return helpers.yield_error(err)
       else
-        local distinct_groups = {}
+        local distinct_groups = {
+          { group = 'gwa_admin' },
+          { group = 'gwa_api_owner' }
+        }
         
-        local group_map = {}
+        local group_map = {
+          gwa_admin = { group = 'gwa_admin' },
+          gwa_api_owner = { group = 'gwa_api_owner' }
+        }
         for _, row in ipairs(rows) do
           if not group_map[row.group] then
             group_map[row.group] = { group = row.group }
-            distinct_groups[#distinct_groups+1] = { group = row.group }
+--            distinct_groups[#distinct_groups+1] = { group = row.group }
           end
+        end
+        group_names = {}
+        for group_name in pairs(group_map) do table.insert(group_names, group_name) end
+        table.sort(group_names)
+        local distinct_groups = {}
+        for i,group_name in ipairs(group_names) do
+          local group = group_map[group_name];
+          distinct_groups[#distinct_groups+1] = group
         end
         
         return responses.send_HTTP_OK {
