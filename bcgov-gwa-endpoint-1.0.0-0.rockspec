@@ -3,7 +3,7 @@ version = "1.0.0-0"
 supported_platforms = {"linux", "macosx"}
 source = {
   url = "https://gogs.data.gov.bc.ca/DataBC/gwa/src/master/kong/plugins/bcgov-gwa-endpoint",
-  tag = "1.0.0"
+  tag = "1.0.1"
 }
 description = {
   summary = "BC Government GWA Plugin",
