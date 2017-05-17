@@ -4,8 +4,5 @@ return {
     api_owners = {
       type = "array",
     },
-    developer_key_group = {
-      type = "string",
-    }
   }
 }
