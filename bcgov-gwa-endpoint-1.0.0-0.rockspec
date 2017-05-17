@@ -1,8 +1,7 @@
 package = "bcgov-gwa-endpoint"
 version = "1.0.0-0"
-supported_platforms = {"linux", "macosx"}
 source = {
-  url = "https://gogs.data.gov.bc.ca/DataBC/gwa/src/master/kong/plugins/bcgov-gwa-endpoint",
+  url = "https://gogs.data.gov.bc.ca/DataBC/kong-bcgov-gwa-endpoint",
   tag = "1.0.0"
 }
 description = {
