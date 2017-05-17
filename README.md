@@ -12,7 +12,8 @@ git clone https://gogs.data.gov.bc.ca/DataBC/kong-bcgov-gwa-endpoint
 cd kong-bcgov-gwa-endpoint
 ```
 2. Create a new branch
-```bash
+```
+:::bash
 git checkout -b 1.0.0-branch
 ```
 2. Rename the rockspec file to the new version (if required).
@@ -22,13 +23,15 @@ git checkout -b 1.0.0-branch
   version = "1.0.0-0"
   tag = "1.0.0"
 4. Commit the changes and tag version
-```bash
+```
+:::bash
 git commit -a -m "Version 1.0.0"
 git tag 1.0.0
 git push origin 1.0.0
 ```
 5. Delete the temporary repository
-```bash
+```
+:::bash
 cd ..
 rm -r kong-bcgov-gwa-endpoint
 ```
