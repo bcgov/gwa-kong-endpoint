@@ -9,7 +9,19 @@ local ngx_get_headers = ngx.req.get_headers
   
 local _M = {}
 
-local function findConsumer(parameters)
+local function loadConsumerGroup(consumer_id, group)
+  local dao = singletons.dao.acls
+  local groups, err = dao:find_all({consumer_id = consumer_id, group = group})
+  if err then
+    return groups, err
+  else
+    for _, group in ipairs(groups) do
+      return group
+    end
+  end
+end
+
+local function loadConsumerByParameters(parameters)
   local dao = singletons.dao.consumers
   local consumers, err = dao:find_all(parameters)
   if err then
@@ -21,9 +33,17 @@ local function findConsumer(parameters)
   end
 end
 
+local function loadConsumerByUsername(username)
+  return loadConsumerByParameters({ username = username });
+end
+
+local function loadConsumerByCustomId(customId)
+  return loadConsumerByParameters({ custom_id = customId });
+end
+
 local function loadConsumer(customId, username)
   local dao = singletons.dao.consumers
-  local consumer, err = findConsumer({ custom_id = customId })
+  local consumer, err = cache.get_or_set("consumerCustomId."..customId, nil, loadConsumerByCustomId, customId)
   if err then
     return _, err
   elseif consumer then
@@ -33,7 +53,7 @@ local function loadConsumer(customId, username)
     end
     return consumer
   else
-    consumer, err = findConsumer({ username = username })
+    consumer, err = cache.get_or_set("consumerUsername."..username, nil, loadConsumerByUsername, username)
     if err then
       return _, err
     elseif consumer then
@@ -80,6 +100,18 @@ local function doSiteminderAuthentication(conf)
       local username = authdirname..'_'..universalid
       local consumer = loadConsumer(customId, username)
       if consumer then
+        local consumerId = consumer.id
+        local group, err = cache.get_or_set("consumerGroup."..consumerId..authdirname, nil, loadConsumerGroup, consumerId, authdirname)
+        if err then
+          return false, {status = 403}
+        elseif group then
+        else
+          local aclsDao = singletons.dao.acls
+          group, err = aclsDao:insert({
+            consumer_id = consumerId,
+            group = authdirname
+          })
+        end
         setConsumer(consumer, authdirname, universalid)
       else
         return false, {status = 403}
