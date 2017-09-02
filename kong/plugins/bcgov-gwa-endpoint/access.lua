@@ -1,8 +1,8 @@
 local utils = require "kong.tools.utils"
-local cache = require "kong.tools.database_cache"
 local singletons = require "kong.singletons"
 local constants = require "kong.constants"
 local responses = require "kong.tools.responses"
+local cache = singletons.cache
 
 local ngx_set_header = ngx.req.set_header
 local ngx_get_headers = ngx.req.get_headers
