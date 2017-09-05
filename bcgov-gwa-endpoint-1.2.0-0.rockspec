@@ -1,8 +1,8 @@
 package = "bcgov-gwa-endpoint"
-version = "1.1.0-0"
+version = "1.2.0-0"
 source = {
   url = "https://gogs.data.gov.bc.ca/DataBC/kong-bcgov-gwa-endpoint",
-  tag = "1.1.0"
+  tag = "1.2.0"
 }
 description = {
   summary = "BC Government GWA Plugin",
