@@ -3,7 +3,6 @@ local access = require "kong.plugins.bcgov-gwa-endpoint.access"
 local singletons = require "kong.singletons"
 local cache = singletons.cache
 local crud = require "kong.api.crud_helpers"
-local log = require "kong.cmd.utils.log"
 
 local BcGovGwaHandler = BasePlugin:extend()
 
