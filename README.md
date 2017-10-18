@@ -6,10 +6,10 @@ to BC Government users.
 NOTE: This version requires kong 0.11.x
 
 ## Releasing
-Follow these instructions to create a new release for a version (e.g. 1.2.2).
+Follow these instructions to create a new release for a version (e.g. 1.2.3).
 
 ```bash
-VERSION=1.2.2
+VERSION=1.2.3
 
 # Clone the source code (always checkout a clean copy)
 git clone https://gogs.data.gov.bc.ca/DataBC/kong-bcgov-gwa-endpoint
@@ -26,8 +26,8 @@ vi bcgov-gwa-endpoint-${VERSION}-0.rockspec
 ```
 
 ```
-  version = "1.2.2-0"
-  tag = "1.2.2"
+  version = "1.2.3-0"
+  tag = "1.2.3"
 ```
 
 ```bash
@@ -48,7 +48,7 @@ Follow these instructions to deploy the plugin to each Kong server in the cluste
 ### Install the luarocks file
 
 ```bash
-VERSION=1.2.2
+VERSION=1.2.3
 
 # Clone the source code (always checkout a clean copy)
 git clone https://gogs.data.gov.bc.ca/DataBC/kong-bcgov-gwa-endpoint

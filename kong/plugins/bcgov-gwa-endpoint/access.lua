@@ -102,7 +102,7 @@ local function doSiteminderAuthentication(conf)
       local consumer = loadConsumer(customId, username)
       if consumer then
         local consumerId = consumer.id
-        local group, err = cache:get_or_set("consumerGroup."..consumerId..authdirname, nil, loadConsumerGroup, consumerId, authdirname)
+        local group, err = cache:get("consumerGroup."..consumerId..authdirname, nil, loadConsumerGroup, consumerId, authdirname)
         if err then
           return false, {status = 403}
         elseif group then
