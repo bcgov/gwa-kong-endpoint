@@ -3,12 +3,13 @@
 Kong Plugin to process BC Government siteminder headers to apply kong consumers and acls (groups)
 to BC Government users.
 
-## Releasing
+NOTE: This version requires kong 0.11.x
 
-Follow these instructions to create a new release for a version (e.g. 1.2.1).
+## Releasing
+Follow these instructions to create a new release for a version (e.g. 1.2.2).
 
 ```bash
-VERSION=1.2.1
+VERSION=1.2.2
 
 # Clone the source code (always checkout a clean copy)
 git clone https://gogs.data.gov.bc.ca/DataBC/kong-bcgov-gwa-endpoint
@@ -25,8 +26,8 @@ vi bcgov-gwa-endpoint-${VERSION}-0.rockspec
 ```
 
 ```
-  version = "1.2.1-0"
-  tag = "1.2.1"
+  version = "1.2.2-0"
+  tag = "1.2.2"
 ```
 
 ```bash
@@ -47,7 +48,7 @@ Follow these instructions to deploy the plugin to each Kong server in the cluste
 ### Install the luarocks file
 
 ```bash
-VERSION=1.2.1
+VERSION=1.2.2
 
 # Clone the source code (always checkout a clean copy)
 git clone https://gogs.data.gov.bc.ca/DataBC/kong-bcgov-gwa-endpoint

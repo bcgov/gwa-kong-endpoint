@@ -43,7 +43,7 @@ end
 local function loadConsumer(customId, username)
   local cache = singletons.cache
   local dao = singletons.dao.consumers
-  local consumer, err = singletons.cache:get_or_set("consumerCustomId."..customId, nil, loadConsumerByCustomId, customId)
+  local consumer, err = singletons.cache:get("consumerCustomId."..customId, nil, loadConsumerByCustomId, customId)
   if err then
     return _, err
   elseif consumer then
@@ -53,7 +53,7 @@ local function loadConsumer(customId, username)
     end
     return consumer
   else
-    consumer, err = cache:get_or_set("consumerUsername."..username, nil, loadConsumerByUsername, username)
+    consumer, err = cache:get("consumerUsername."..username, nil, loadConsumerByUsername, username)
     if err then
       return _, err
     elseif consumer then
