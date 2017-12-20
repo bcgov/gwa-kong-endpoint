@@ -2,7 +2,6 @@ local utils = require "kong.tools.utils"
 local singletons = require "kong.singletons"
 local constants = require "kong.constants"
 local responses = require "kong.tools.responses"
-local cache = singletons.cache
 
 local ngx_set_header = ngx.req.set_header
 local ngx_get_headers = ngx.req.get_headers
@@ -42,8 +41,9 @@ local function loadConsumerByCustomId(customId)
 end
 
 local function loadConsumer(customId, username)
+  local cache = singletons.cache
   local dao = singletons.dao.consumers
-  local consumer, err = cache.get_or_set("consumerCustomId."..customId, nil, loadConsumerByCustomId, customId)
+  local consumer, err = singletons.cache:get("consumerCustomId."..customId, nil, loadConsumerByCustomId, customId)
   if err then
     return _, err
   elseif consumer then
@@ -53,7 +53,7 @@ local function loadConsumer(customId, username)
     end
     return consumer
   else
-    consumer, err = cache.get_or_set("consumerUsername."..username, nil, loadConsumerByUsername, username)
+    consumer, err = cache:get("consumerUsername."..username, nil, loadConsumerByUsername, username)
     if err then
       return _, err
     elseif consumer then
@@ -85,6 +85,7 @@ local function setConsumer(consumer, userType, userName)
 end
 
 local function doSiteminderAuthentication(conf)
+  local cache = singletons.cache
   local headers = ngx_get_headers()
   local userguid = headers["smgov_userguid"]
   if userguid then
@@ -101,7 +102,7 @@ local function doSiteminderAuthentication(conf)
       local consumer = loadConsumer(customId, username)
       if consumer then
         local consumerId = consumer.id
-        local group, err = cache.get_or_set("consumerGroup."..consumerId..authdirname, nil, loadConsumerGroup, consumerId, authdirname)
+        local group, err = cache:get("consumerGroup."..consumerId..authdirname, nil, loadConsumerGroup, consumerId, authdirname)
         if err then
           return false, {status = 403}
         elseif group then
