@@ -45,6 +45,7 @@ target
 .settings
 .project
 .classpath
+.buildpath
 *.log
 *.log.*
 *.mdmp
