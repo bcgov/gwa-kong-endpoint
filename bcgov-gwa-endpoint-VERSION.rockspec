@@ -6,7 +6,7 @@ source = {
 }
 description = {
   summary = "BC Government GWA Plugin",
-  license = "APACHE-2"
+  license = "Apache-2.0"
 }
 dependencies = {
   "lua ~> 5.1"
