@@ -1,4 +1,4 @@
-package = "bcgov-gwa-endpoint"
+package = "gwa-kong-endpoint"
 version = "VERSION"
 source = {
   url = "git://github.com/GITHUB_PROJECT",
