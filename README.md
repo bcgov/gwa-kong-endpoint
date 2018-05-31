@@ -3,43 +3,47 @@
 Kong Plugin to process BC Government siteminder headers to apply kong consumers and acls (groups)
 to BC Government users.
 
-NOTE: This version requires kong 0.11.x
+NOTE: This version requires kong 0.12.x
 
 ## Releasing
-Follow these instructions to create a new release for a version (e.g. 1.2.3).
+Follow these instructions to create a new release for a version.
 
-```bash
-VERSION=1.2.3
+### Create Jenkins job
+If not already setup create a Jenkins pipeline job with the following parameters
 
-# Clone the source code (always checkout a clean copy)
-git clone https://gogs.data.gov.bc.ca/DataBC/kong-bcgov-gwa-endpoint
-cd kong-bcgov-gwa-endpoint
+Pipeline name: gwa-kong-endpoint-release
 
-# Create a new branch
-git checkout -b $VERSION-branch
+Discard old builds:
+  Max # of builds to keep: 2
 
-# Rename the rockspec file to the new version (if required).
-mv bcgov-gwa-endpoint-*-0.rockspec bcgov-gwa-endpoint-${VERSION}-0.rockspec
+This Project is parameterized: Yes
+  Choice Parameter
+    Name: gitBranch
+    Choices: master (more can be added if used)
+  String Parameter
+    Name: gitTag
+    Trim the string: yes
+  Passord Parameter
+    Name: luarocksApiKey
+    Default value: A luarocks.org api Key
 
-# Edit the rockspec file for the new version
-vi bcgov-gwa-endpoint-${VERSION}-0.rockspec
-```
+Definiion: Pipeline script from SCM
+  SCM: git
+  Repositories:
+    Repository URL: git@github.com:bcgov/gwa-kong-endpoint.git
+    Credentials: A personal access token credential for a github.com user with write permission for the repository
+  Branches to build: */jenkins-release
+  Script path: Jenkinsfile
+  Lightweight checkout: Yes
+  
+### Running Jenkins job
+The jenkins job will update the version in the source code and deploy to luarocks
 
-```
-  version = "1.2.3-0"
-  tag = "1.2.3"
-```
-
-```bash
-# Commit the changes and tag version
-git commit -a -m "Version $VERSION"
-git tag $VERSION
-git push origin $VERSION
-
-# Delete the checked out repository
-cd ..
-rm -rf kong-bcgov-gwa-endpoint
-```
+1. Click Build with Parameters on the job.
+2. Select the gitBranch (e.g. master).
+3. Enter the gitTag (e.g. 1.0.0) which is the version number of the release.
+4. Enter the luarocksApiKey (if not set as a default).
+5. Click build.
 
 ## Installing
 
@@ -47,23 +51,7 @@ Follow these instructions to deploy the plugin to each Kong server in the cluste
 
 ### Install the luarocks file
 
-```bash
-VERSION=1.2.3
-
-# Clone the source code (always checkout a clean copy)
-git clone https://gogs.data.gov.bc.ca/DataBC/kong-bcgov-gwa-endpoint
-cd kong-bcgov-gwa-endpoint
-
-# Checkout the version to a branch
-git checkout tags/$VERSION -b $VERSION-branch
-
-# Make the lua rock file and deploy to the shared lua repository
-luarocks make
-
-# Delete the checked out repository
-cd ..
-rm -rf kong-bcgov-gwa-endpoint
-```
+`luarocks install bcgov-gwa-endpoint`
 
 ### Add the plugin to the kong configuration
 
