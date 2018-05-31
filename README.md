@@ -1,4 +1,4 @@
-# kong-bcgov-gwa-endpoint
+# gwa-kong-endpoint
 
 Kong Plugin to process BC Government siteminder headers to apply kong consumers and acls (groups)
 to BC Government users.
@@ -51,12 +51,12 @@ Follow these instructions to deploy the plugin to each Kong server in the cluste
 
 ### Install the luarocks file
 
-`luarocks install bcgov-gwa-endpoint`
+`luarocks install gwa-kong-endpoint`
 
 ### Add the plugin to the kong configuration
 
 Edit the kong.conf file 
 
 ```
-custom_plugins = otherplugin,bcgov-gwa-endpoint
+custom_plugins = otherplugin,gwa-kong-endpoint
 ```
