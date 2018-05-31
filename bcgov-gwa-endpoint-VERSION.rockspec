@@ -1,12 +1,12 @@
 package = "bcgov-gwa-endpoint"
-version = "1.2.3-0"
+version = "VERSION"
 source = {
-  url = "https://gogs.data.gov.bc.ca/DataBC/kong-bcgov-gwa-endpoint",
-  tag = "1.2.3"
+  url = "git://github.com/GITHUB_PROJECT",
+  tag = "VERSION"
 }
 description = {
   summary = "BC Government GWA Plugin",
-  license = "UNLICENSED"
+  license = "APACHE-2"
 }
 dependencies = {
   "lua ~> 5.1"
