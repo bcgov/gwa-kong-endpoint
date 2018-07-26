@@ -1,7 +1,8 @@
 package = "gwa-kong-endpoint"
 version = "VERSION"
+supported_platforms = {"linux", "macosx"}
 source = {
-  url = "git://github.com/GITHUB_PROJECT",
+  url = "git://github.com/GITHUB_PROJECT.git",
   tag = "VERSION"
 }
 description = {
@@ -9,7 +10,7 @@ description = {
   license = "Apache-2.0"
 }
 dependencies = {
-  "lua ~> 5.1"
+  "lua >= 5.1"
 }
 build = {
   type = "builtin",
