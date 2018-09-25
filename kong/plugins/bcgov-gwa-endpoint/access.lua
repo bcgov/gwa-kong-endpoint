@@ -89,7 +89,6 @@ local function setConsumer(consumer, userType, userName)
   ngx_set_header('X-User-Name', userName)
   ngx.ctx.authenticated_consumer = consumer  
   ngx.ctx.authenticated_credential = { consumer_id = consumer.id }
-  ngx.log(ngx.NOTICE, consumer.id);
 end
 
 local function doSiteminderAuthentication(conf)
