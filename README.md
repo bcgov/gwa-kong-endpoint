@@ -3,7 +3,7 @@
 Kong Plugin to process BC Government siteminder headers to apply kong consumers and acls (groups)
 to BC Government users.
 
-NOTE: This version requires kong >= 0.12.x
+NOTE: This version requires kong >= 0.14.1
 
 ## Installing
 
