@@ -1,9 +1,9 @@
 package = "gwa-kong-endpoint"
-version = "VERSION"
+version = "1.3.1-3"
 supported_platforms = {"linux", "macosx"}
 source = {
-  url = "git://github.com/GITHUB_PROJECT.git",
-  tag = "VERSION"
+  url = "git://github.com/bcgov/gwa-kong-endpoint.git",
+  tag = "1.3.1-3"
 }
 description = {
   summary = "BC Government GWA Plugin",
