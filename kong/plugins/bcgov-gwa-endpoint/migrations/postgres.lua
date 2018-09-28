@@ -2,7 +2,7 @@ local app_helpers = require "lapis.application"
 
 return {
   {
-    name = "2018-08-29_init_group_names",
+    name = "2018-09-28_init_group_names",
     up = [[
       CREATE TABLE IF NOT EXISTS group_names(
         id uuid,
@@ -23,11 +23,11 @@ return {
       DROP TABLE group_names;
     ]]
   },{
-    name = "2018-08-29_init_group_names_data",
+    name = "2018-09-28_init_group_names_data",
     up = function(db, _, dao)
       local rows, err = db:query("SELECT distinct group FROM acls")
       if err then
-        return app_helpers.yield_error(err)
+        return err
       else        
         local group_map = {
           gwa_admin = { group = 'gwa_admin' },
