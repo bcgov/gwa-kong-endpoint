@@ -1,8 +1,8 @@
 local utils = require "kong.tools.utils"
 local singletons = require "kong.singletons"
 local constants = require "kong.constants"
-local responses = require "kong.tools.responses"
-local crud = require "kong.api.crud_helpers"
+--local exit = require "kong.response.exit"
+-- local crud = require "kong.api.crud_helpers"
 local groups = require "kong.plugins.acl.groups"
 
 local ngx_set_header = ngx.req.set_header
@@ -126,7 +126,7 @@ end
 function _M.execute(conf)
   local ok, err = doSiteminderAuthentication(conf)
   if not ok then
-    return responses.send(err.status, err.message)
+    return kong.response.exit(err.status, err.message)
   end
 end
 
