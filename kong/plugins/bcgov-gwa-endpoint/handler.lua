@@ -27,17 +27,17 @@ function BcGovGwaHandler:init_worker()
   singletons.worker_events.register(function(data)
     local new = data.entity
     if data.operation == "delete" then
-      local cacheKey = "consumerGroup."..new.consumer_id..new.group
+      local cacheKey = "consumerGroup."..new.consumer.id..new.group
       -- Don't fail if cache clearing fails
       pcall(function()
         cache:invalidate(cacheKey)
       end)
     elseif data.operation == "update" then
       local old = data.old_entity
-      cache:invalidate("consumerGroup."..old.consumer_id..old.group)
-      singletons.dao.group_names:insert({group = new.group})
+      cache:invalidate("consumerGroup."..old.consumer.id..old.group)
+      kong.db.group_names:insert({group = new.group})
     elseif data.operation == "create" then
-      singletons.dao.group_names:insert({group = new.group})
+      kong.db.group_names:insert({group = new.group})
     end
   end, "crud", "acls")
 end

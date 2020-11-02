@@ -4,6 +4,51 @@ local endpoints = require "kong.api.endpoints"
 local singletons = require "kong.singletons"
 --local responses = require "kong.tools.responses"
 local groups_schema = kong.db.group_names.schema
+local acls_schema = kong.db.acls.schema
+local escape_uri   = ngx.escape_uri
+local unescape_uri = ngx.unescape_uri
+local type         = type
+local fmt          = string.format
+local select       = select
+local tostring     = tostring
+local concat       = table.concat
+
+local function get_message(default, ...)
+    local message
+    local n = select("#", ...)
+    if n > 0 then
+      if n == 1 then
+        local arg = select(1, ...)
+        if type(arg) == "table" then
+          message = arg
+        elseif arg ~= nil then
+          message = tostring(arg)
+        end
+  
+      else
+        message = {}
+        for i = 1, n do
+          local arg = select(i, ...)
+          message[i] = tostring(arg)
+        end
+        message = concat(message)
+      end
+    end
+  
+    if not message then
+      message = default
+    end
+  
+    if type(message) == "string" then
+      message = { message = message }
+    end
+  
+    return message
+  end
+
+local function ok(...)
+  return kong.response.exit(200, get_message(nil, ...))
+end
 
 return {
   ["/groups"] = {
@@ -71,10 +116,46 @@ return {
 --     end
 --   },
 
-  ["/groups/:group/users"] = {
-    GET = function(self, dao_factory)
-      crud.paginated_set(self, dao_factory.acls)
-    end,
-  },
 
+  ["/groups/:group/consumers"] = {
+    schema = acls_schema,
+    GET = function(self, db, helpers)
+            local schema = acls_schema
+            local next_page_tags = ""
+            local dao = db[schema.name]
+
+            local options = {
+                nulls = true,
+                pagination = {
+                  page_size     = 100,
+                  max_page_size = 1000,
+                },
+                group = self.params.group
+            }
+
+            local args = self.args.uri
+            if args.tags then
+                next_page_tags = "&tags=" .. (type(args.tags) == "table" and args.tags[1] or args.tags)
+            end
+        
+            next_page_tags = "&group=" .. self.params.group
+
+            kong.log.err(next_page_tags)
+            local data, _, err_t, offset = dao["page"](dao, 100, ngx.null, opts)
+            if err_t then
+                return endpoints.handle_error(err_t)
+            end
+        
+            local next_page = offset and fmt("/%s?%s",
+                                            schema.admin_api_name or
+                                            schema.name,
+                                            next_page_tags) or null
+        
+            return ok {
+                data   = data,
+                offset = offset,
+                next   = next_page,
+            }
+    end
+  }
 }

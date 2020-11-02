@@ -108,9 +108,11 @@ local function doSiteminderAuthentication(conf)
       local consumer = loadConsumer(customId, username)
       if consumer then
         local consumerId = consumer.id
-        if not groups.consumer_id_in_groups({authdirname}, consumerId) then
-          group, err = singletons.dao.acls:insert({
-            consumer_id = consumerId,
+        local consumerGroups = groups.get_consumer_groups(consumerId)
+
+        if not consumerGroups or not groups.consumer_in_groups({authdirname}, consumerGroups) then
+          local group, err = kong.db.acls:insert({
+            consumer = {id = consumerId},
             group = authdirname
           })
         end
