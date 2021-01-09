@@ -1,8 +1,6 @@
 local BasePlugin = require "kong.plugins.base_plugin"
 local access = require "kong.plugins.bcgov-gwa-endpoint.access"
-local singletons = require "kong.singletons"
 local cache = kong.cache
---local crud = require "kong.api.crud_helpers"
 
 local BcGovGwaHandler = BasePlugin:extend()
 
@@ -11,8 +9,8 @@ function BcGovGwaHandler:new()
 end
 
 function BcGovGwaHandler:init_worker()
-  local worker_events = singletons.worker_events
-  singletons.worker_events.register(function(data)
+  local worker_events = kong.worker_events
+  worker_events.register(function(data)
     if data.operation == "delete" then
       local new = data.entity
       cache:invalidate("consumerCustomId."..new.custom_id)
@@ -24,7 +22,7 @@ function BcGovGwaHandler:init_worker()
     end
   end, "crud", "consumers")
 
-  singletons.worker_events.register(function(data)
+  worker_events.register(function(data)
     local new = data.entity
     if data.operation == "delete" then
       local cacheKey = "consumerGroup."..new.consumer.id..new.group
