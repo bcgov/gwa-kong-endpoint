@@ -2,8 +2,8 @@ local singletons = require "kong.singletons"
 local typedefs = require "kong.db.schema.typedefs"
 
 local function check_unique(group, group_name)
-  if singletons.dao and group then
-    local res, err = singletons.dao.group_names:find_all {group = group}
+  if kong.db and group then
+    local res, err = kong.db.group_names:find_all {group = group}
     if not err and #res > 0 then
       return false, "group already exists"
     elseif not err then
@@ -35,7 +35,8 @@ return {
           group = {
             type      = "string",
             required  = true,
-            unique    = true
+            unique    = true,
+            func.     = check_unique
           },
         },
       },
