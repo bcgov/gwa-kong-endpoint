@@ -1,6 +1,5 @@
 local BasePlugin = require "kong.plugins.base_plugin"
 local access = require "kong.plugins.bcgov-gwa-endpoint.access"
-local cache = kong.cache
 
 local BcGovGwaHandler = BasePlugin:extend()
 
@@ -9,6 +8,7 @@ function BcGovGwaHandler:new()
 end
 
 function BcGovGwaHandler:init_worker()
+  local cache = kong.cache
   local worker_events = kong.worker_events
   worker_events.register(function(data)
     if data.operation == "delete" then
