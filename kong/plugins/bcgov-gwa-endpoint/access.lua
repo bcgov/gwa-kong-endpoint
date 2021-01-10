@@ -10,22 +10,11 @@ local ngx_get_headers = ngx.req.get_headers
   
 local _M = {}
 
-local function loadConsumerGroup(consumer_id, group)
-  local groups, err = kong.db.acls:find_all({consumer_id = consumer_id, group = group})
-  if err then
-    return groups, err
-  else
-    for _, group in ipairs(groups) do
-      return group
-    end
-  end
-end
-
 local function loadConsumerByUsername(username)
   if username then
-    local consumers, err = kong.db.consumers:select_by_username(username)
+    local consumer, err = kong.db.consumers:select_by_username(username)
     if err then
-      return consumers, err
+      return consumer, err
     else
       return consumer
     end
@@ -50,11 +39,16 @@ end
 local function loadConsumer(customId, username)
   local consumer, err = kong.cache:get("consumerCustomId."..customId, nil, loadConsumerByCustomId, customId)
   if err then
+    kong.log.inspect(err)
     return _, err
   elseif consumer then
     if username ~= consumer.username then
       consumer.username = username
-      kong.db.consumers:update(consumer, {id = consumer.id})
+      local entity, err, err_t = kong.db.consumers:update({id = consumer.id}, consumer)
+      if err or err_t then
+        kong.log.inspect(err)
+        kong.log.inspect(err_t)
+      end
     end
     return consumer
   else
@@ -64,7 +58,11 @@ local function loadConsumer(customId, username)
     elseif consumer then
       if customId ~= consumer.custom_id then
         consumer.custom_id = customId
-        kong.db.consumers:update(consumer, {id = consumer.id})
+        local entity, err, err_t = kong.db.consumers:update({id = consumer.id}, consumer)
+        if err or err_t then
+          kong.log.inspect(err)
+          kong.log.inspect(err_t)
+        end
       end
       return consumer
     else
@@ -73,6 +71,7 @@ local function loadConsumer(customId, username)
         username = username
       })
       if err then
+        kong.log.inspect(err)
       elseif consumer then
         return consumer
       end
@@ -105,11 +104,13 @@ local function doSiteminderAuthentication(conf)
       universalid = universalid:lower();
       local customId = authdirname..'_'..userguid
       local username = universalid..'@'..authdirname
+
       local consumer = loadConsumer(customId, username)
       if consumer then
         local consumerId = consumer.id
         local consumerGroups = groups.get_consumer_groups(consumerId)
 
+        -- if Consumer has groups, but 'authdirname' is not one of them, then add the group to the consumer
         if not consumerGroups or not groups.consumer_in_groups({authdirname}, consumerGroups) then
           local group, err = kong.db.acls:insert({
             consumer = {id = consumerId},
@@ -118,6 +119,7 @@ local function doSiteminderAuthentication(conf)
         end
         setConsumer(consumer, authdirname, universalid)
       else
+        kong.log.inspect("Loading a consumer failed!")
         return false, {status = 403}
       end
     end

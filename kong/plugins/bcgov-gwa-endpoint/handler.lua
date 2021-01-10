@@ -3,22 +3,34 @@ local access = require "kong.plugins.bcgov-gwa-endpoint.access"
 
 local BcGovGwaHandler = BasePlugin:extend()
 
+local function insert_if_missing (group)
+    -- local group_cache_key = kong.db.group_names:cache_key(key)
+    -- local credential, err = cache:get(credential_cache_key, nil, load_credential,
+    --   key)
+    kong.db.group_names:insert({group = group})
+end
+
 function BcGovGwaHandler:new()
   BcGovGwaHandler.super.new(self, "bcgov-gwa-endpoint")
 end
 
 function BcGovGwaHandler:init_worker()
+  kong.log.inspect("INIT_WORKER!")
+
   local cache = kong.cache
   local worker_events = kong.worker_events
   worker_events.register(function(data)
-    if data.operation == "delete" then
+    if data.operation == "delete" or data.operation == "create" then
       local new = data.entity
       cache:invalidate("consumerCustomId."..new.custom_id)
       cache:invalidate("consumerUsername."..new.username)
     elseif data.operation == "update" then
+      local new = data.entity
       local old = data.old_entity
       cache:invalidate("consumerCustomId."..old.custom_id)
       cache:invalidate("consumerUsername."..old.username)
+      cache:invalidate("consumerCustomId."..new.custom_id)
+      cache:invalidate("consumerUsername."..new.username)
     end
   end, "crud", "consumers")
 
@@ -33,9 +45,9 @@ function BcGovGwaHandler:init_worker()
     elseif data.operation == "update" then
       local old = data.old_entity
       cache:invalidate("consumerGroup."..old.consumer.id..old.group)
-      kong.db.group_names:insert({group = new.group})
+      insert_if_missing (new.group)
     elseif data.operation == "create" then
-      kong.db.group_names:insert({group = new.group})
+      insert_if_missing (new.group)
     end
   end, "crud", "acls")
 end
