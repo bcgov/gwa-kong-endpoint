@@ -103,7 +103,7 @@ local function doSiteminderAuthentication(conf)
       userguid = userguid:lower();
       universalid = universalid:lower();
       local customId = authdirname..'_'..userguid
-      local username = universalid..'@'..authdirname
+      local username = universalid..'@sm-'..authdirname
 
       local consumer = loadConsumer(customId, username)
       if consumer then
