@@ -13,6 +13,7 @@ return {
           {
             api_owners = {
               type = "array",
+              elements = { type = "string" },
             }
           },
         },
