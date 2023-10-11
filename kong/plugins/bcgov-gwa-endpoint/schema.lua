@@ -1,3 +1,5 @@
+local typedefs = require "kong.db.schema.typedefs"
+
 return {
   name = "bcgov-gwa-endpoint",
   fields = {
