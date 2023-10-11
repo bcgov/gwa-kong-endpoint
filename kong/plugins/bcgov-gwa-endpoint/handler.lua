@@ -1,7 +1,9 @@
-local BasePlugin = require "kong.plugins.base_plugin"
-local access = require "kong.plugins.bcgov-gwa-endpoint.access"
+local BcGovGwaHandler = {
+  VERSION  = "1.0.0",
+  PRIORITY = 1000,
+}
 
-local BcGovGwaHandler = BasePlugin:extend()
+local access = require "kong.plugins.bcgov-gwa-endpoint.access"
 
 local function insert_if_missing (group)
     -- local group_cache_key = kong.db.group_names:cache_key(key)
@@ -10,13 +12,7 @@ local function insert_if_missing (group)
     kong.db.group_names:insert({group = group})
 end
 
-function BcGovGwaHandler:new()
-  BcGovGwaHandler.super.new(self, "bcgov-gwa-endpoint")
-end
-
 function BcGovGwaHandler:init_worker()
-  kong.log.inspect("INIT_WORKER!")
-
   local cache = kong.cache
   local worker_events = kong.worker_events
   worker_events.register(function(data)
@@ -56,7 +52,5 @@ function BcGovGwaHandler:access(conf)
   BcGovGwaHandler.super.access(self)
   access.execute(conf)
 end
-
-BcGovGwaHandler.PRIORITY = 1000
 
 return BcGovGwaHandler
