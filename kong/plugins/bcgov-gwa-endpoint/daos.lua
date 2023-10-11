@@ -1,4 +1,3 @@
-local singletons = require "kong.singletons"
 local typedefs = require "kong.db.schema.typedefs"
 
 return {

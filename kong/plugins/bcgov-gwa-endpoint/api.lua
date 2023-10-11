@@ -1,7 +1,6 @@
 local cjson = require "cjson"
 --local crud = require "kong.api.crud_helpers"
 local endpoints = require "kong.api.endpoints"
-local singletons = require "kong.singletons"
 --local responses = require "kong.tools.responses"
 local groups_schema = kong.db.group_names.schema
 local acls_schema = kong.db.acls.schema

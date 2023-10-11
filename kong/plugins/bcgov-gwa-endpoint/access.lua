@@ -1,5 +1,4 @@
 local utils = require "kong.tools.utils"
-local singletons = require "kong.singletons"
 local constants = require "kong.constants"
 --local exit = require "kong.response.exit"
 -- local crud = require "kong.api.crud_helpers"
