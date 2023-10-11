@@ -26,10 +26,5 @@ return {
     end,
     teardown = function()
     end
-  }, cassandra = {
-    up = [[
-    ]],
-    teardown = function()
-    end
-  }
+  },
 }

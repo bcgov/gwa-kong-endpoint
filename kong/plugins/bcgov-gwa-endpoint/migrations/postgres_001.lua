@@ -20,18 +20,5 @@ return {
     ]],
     teardown = function()
     end
-  }, cassandra = {
-    up = [[
-        CREATE TABLE IF NOT EXISTS group_names(
-            id uuid,
-            group text,
-            created_at timestamp,
-            PRIMARY KEY (id)
-          );
-    
-          CREATE INDEX IF NOT EXISTS ON group_names(group);
-    ]],
-    teardown = function()
-    end
-  }
+  },
 }
