@@ -3,7 +3,7 @@ local typedefs = require "kong.db.schema.typedefs"
 return {
     -- this plugin only results in one custom DAO, named `keyauth_credentials`:
     {
-      dao                = "kong.plugins.bcgov-gwa-endpoint.group_names",
+      -- dao                = "kong.plugins.bcgov-gwa-endpoint.group_names",
       name               = "group_names", -- the actual table in the database
       endpoint_key       = "group",
       primary_key        = { "id" },
