@@ -1,8 +1,7 @@
 local utils = require "kong.tools.utils"
 local constants = require "kong.constants"
---local exit = require "kong.response.exit"
--- local crud = require "kong.api.crud_helpers"
 local groups = require "kong.plugins.acl.groups"
+local kong = kong
 
 local ngx_set_header = ngx.req.set_header
 local ngx_get_headers = ngx.req.get_headers
@@ -85,8 +84,9 @@ local function setConsumer(consumer, userType, userName)
   ngx_set_header(constants.HEADERS.ANONYMOUS, nil)
   ngx_set_header('X-User-Type', userType)
   ngx_set_header('X-User-Name', userName)
-  ngx.ctx.authenticated_consumer = consumer  
-  ngx.ctx.authenticated_credential = { consumer_id = consumer.id }
+  
+  -- Updated for Kong 3
+  kong.client.authenticate(consumer, { consumer_id = consumer.id })
 end
 
 local function doSiteminderAuthentication(conf)

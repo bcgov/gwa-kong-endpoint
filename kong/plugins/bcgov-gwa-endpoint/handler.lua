@@ -1,20 +1,20 @@
+local kong = kong
+
 local BcGovGwaHandler = {
-  VERSION  = "1.0.0",
+  VERSION  = "2.0.0",
   PRIORITY = 1000,
 }
 
 local access = require "kong.plugins.bcgov-gwa-endpoint.access"
 
-local function insert_if_missing (group)
-    -- local group_cache_key = kong.db.group_names:cache_key(key)
-    -- local credential, err = cache:get(credential_cache_key, nil, load_credential,
-    --   key)
+local function insert_if_missing(group)
     kong.db.group_names:insert({group = group})
 end
 
 function BcGovGwaHandler:init_worker()
   local cache = kong.cache
   local worker_events = kong.worker_events
+  
   worker_events.register(function(data)
     if data.operation == "delete" or data.operation == "create" then
       local new = data.entity
@@ -41,15 +41,15 @@ function BcGovGwaHandler:init_worker()
     elseif data.operation == "update" then
       local old = data.old_entity
       cache:invalidate("consumerGroup."..old.consumer.id..old.group)
-      insert_if_missing (new.group)
+      insert_if_missing(new.group)
     elseif data.operation == "create" then
-      insert_if_missing (new.group)
+      insert_if_missing(new.group)
     end
   end, "crud", "acls")
 end
 
 function BcGovGwaHandler:access(conf)
-  BcGovGwaHandler.super.access(self)
+  -- BcGovGwaHandler.super.access(self) -- Removed super call for Kong 3
   access.execute(conf)
 end
 
