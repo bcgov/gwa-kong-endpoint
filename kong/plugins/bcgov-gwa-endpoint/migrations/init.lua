@@ -1,3 +1,3 @@
 return {
-    "postgres_001"
+  "000_base_bcgov_gwa_endpoint"
 }

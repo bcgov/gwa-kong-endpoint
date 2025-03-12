@@ -1,31 +1,18 @@
 local utils = require "kong.tools.utils"
-local singletons = require "kong.singletons"
 local constants = require "kong.constants"
---local exit = require "kong.response.exit"
--- local crud = require "kong.api.crud_helpers"
 local groups = require "kong.plugins.acl.groups"
+local kong = kong
 
 local ngx_set_header = ngx.req.set_header
 local ngx_get_headers = ngx.req.get_headers
   
 local _M = {}
 
-local function loadConsumerGroup(consumer_id, group)
-  local groups, err = kong.db.acls:find_all({consumer_id = consumer_id, group = group})
-  if err then
-    return groups, err
-  else
-    for _, group in ipairs(groups) do
-      return group
-    end
-  end
-end
-
 local function loadConsumerByUsername(username)
   if username then
-    local consumers, err = kong.db.consumers:select_by_username(username)
+    local consumer, err = kong.db.consumers:select_by_username(username)
     if err then
-      return consumers, err
+      return consumer, err
     else
       return consumer
     end
@@ -50,11 +37,16 @@ end
 local function loadConsumer(customId, username)
   local consumer, err = kong.cache:get("consumerCustomId."..customId, nil, loadConsumerByCustomId, customId)
   if err then
+    kong.log.inspect(err)
     return _, err
   elseif consumer then
     if username ~= consumer.username then
       consumer.username = username
-      kong.db.consumers:update(consumer, {id = consumer.id})
+      local entity, err, err_t = kong.db.consumers:update({id = consumer.id}, consumer)
+      if err or err_t then
+        kong.log.inspect(err)
+        kong.log.inspect(err_t)
+      end
     end
     return consumer
   else
@@ -64,7 +56,11 @@ local function loadConsumer(customId, username)
     elseif consumer then
       if customId ~= consumer.custom_id then
         consumer.custom_id = customId
-        kong.db.consumers:update(consumer, {id = consumer.id})
+        local entity, err, err_t = kong.db.consumers:update({id = consumer.id}, consumer)
+        if err or err_t then
+          kong.log.inspect(err)
+          kong.log.inspect(err_t)
+        end
       end
       return consumer
     else
@@ -73,6 +69,7 @@ local function loadConsumer(customId, username)
         username = username
       })
       if err then
+        kong.log.inspect(err)
       elseif consumer then
         return consumer
       end
@@ -87,8 +84,9 @@ local function setConsumer(consumer, userType, userName)
   ngx_set_header(constants.HEADERS.ANONYMOUS, nil)
   ngx_set_header('X-User-Type', userType)
   ngx_set_header('X-User-Name', userName)
-  ngx.ctx.authenticated_consumer = consumer  
-  ngx.ctx.authenticated_credential = { consumer_id = consumer.id }
+  
+  -- Updated for Kong 3
+  kong.client.authenticate(consumer, { consumer_id = consumer.id })
 end
 
 local function doSiteminderAuthentication(conf)
@@ -104,18 +102,23 @@ local function doSiteminderAuthentication(conf)
       userguid = userguid:lower();
       universalid = universalid:lower();
       local customId = authdirname..'_'..userguid
-      local username = authdirname..'_'..universalid
+      local username = universalid..'@sm-'..authdirname
+
       local consumer = loadConsumer(customId, username)
       if consumer then
         local consumerId = consumer.id
-        if not groups.consumer_id_in_groups({authdirname}, consumerId) then
-          group, err = singletons.dao.acls:insert({
-            consumer_id = consumerId,
+        local consumerGroups = groups.get_consumer_groups(consumerId)
+
+        -- if Consumer has groups, but 'authdirname' is not one of them, then add the group to the consumer
+        if not consumerGroups or not groups.consumer_in_groups({authdirname}, consumerGroups) then
+          local group, err = kong.db.acls:insert({
+            consumer = {id = consumerId},
             group = authdirname
           })
         end
         setConsumer(consumer, authdirname, universalid)
       else
+        kong.log.inspect("Loading a consumer failed!")
         return false, {status = 403}
       end
     end
